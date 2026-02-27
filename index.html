@@ -3,8 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
-    <title>Цвет + яркость · эллипс</title>
+    <title>синяя кнопка + ползунок</title>
     <style>
+        /* абсолютный минимум, никаких лишних окон, карточек, подложек */
         * {
             box-sizing: border-box;
             margin: 0;
@@ -16,214 +17,111 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            transition: background-color 0.1s ease;
+            font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+            background-color: #ffffff; /* меняется скриптом */
             margin: 0;
-            padding: 16px;
-            background-color: #ffffff; /* начальный белый, будет переопределён скриптом */
+            padding: 20px;
+            transition: background-color 0.1s ease;
         }
 
-        /* карточка — просто полупрозрачная подложка, но теперь без лишнего */
-        .card {
-            background: rgba(255, 255, 255, 0.2);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            border-radius: 48px;
-            padding: 2.5rem 2rem;
-            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.4);
+        /* флекс-контейнер: только кнопка и ползунок, по вертикали */
+        .pure-controls {
             display: flex;
             flex-direction: column;
-            align-items: center;
-            gap: 2.5rem;
-            width: 100%;
-            max-width: 460px;
-        }
-
-        /* круглая кнопка — чистый круг с окантовкой */
-        .round-button {
-            width: 160px;
-            height: 160px;
-            border-radius: 50%;
-            background: transparent;
-            border: 3px solid rgba(0, 0, 0, 0.25);
-            cursor: pointer;
-            transition: background-color 0.15s, border-color 0.15s, transform 0.05s;
-            display: flex;
             align-items: center;
             justify-content: center;
-            color: #1f1f2e;
-            font-size: 1.4rem;
-            font-weight: 500;
-            letter-spacing: 0.5px;
-            -webkit-tap-highlight-color: transparent;
-            box-shadow: none;
-            backdrop-filter: blur(4px);
-            background-color: rgba(255,255,255,0.1);
-            user-select: none;
-        }
-
-        /* при нажатии на мобилках лёгкое сжатие */
-        .round-button:active {
-            transform: scale(0.97);
-            background-color: rgba(255,255,255,0.2);
-        }
-
-        /* контейнер ползунка */
-        .slider-container {
+            gap: 3rem; /* расстояние между кнопкой и ползунком */
             width: 100%;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 1rem;
+            max-width: 500px;
+            padding: 20px 0;
         }
 
-        .slider-label {
-            font-size: 1.1rem;
-            font-weight: 450;
-            color: #1e1e2a;
-            background: rgba(255, 255, 255, 0.4);
-            padding: 0.3rem 1.8rem;
-            border-radius: 60px;
-            backdrop-filter: blur(4px);
-            border: 1px solid rgba(255,255,240,0.6);
+        /* КРУГЛАЯ КНОПКА — синяя, без текста */
+        .blue-round {
+            width: 180px;
+            height: 180px;
+            border-radius: 50%;
+            background-color: #2563eb; /* чистый синий */
+            border: none;
+            cursor: pointer;
+            -webkit-tap-highlight-color: transparent;
+            box-shadow: 0 8px 20px rgba(37, 99, 235, 0.3);
+            transition: background-color 0.1s, transform 0.05s;
+            flex-shrink: 0;
         }
 
-        /* ползунок — дорожка */
-        input[type=range] {
+        .blue-round:active {
+            transform: scale(0.96);
+            background-color: #1d4ed8; /* чуть темнее при нажатии */
+        }
+
+        /* ПОЛЗУНОК — синяя дорожка и синий эллипс-бегунок */
+        .blue-slider {
             -webkit-appearance: none;
             width: 100%;
-            max-width: 340px;
+            max-width: 400px;
             height: 12px;
-            background: rgba(0, 0, 0, 0.1);
+            background-color: #3b82f6; /* синяя дорожка */
             border-radius: 30px;
             outline: none;
-            border: 1px solid rgba(255,255,255,0.5);
-            backdrop-filter: blur(2px);
-            box-shadow: inset 0 1px 4px rgba(0,0,0,0.1);
+            border: none;
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
         }
 
-        /* ползунок: бегунок в форме ЭЛЛИПСА / прямоугольника со скруглением (похоже на капсулу) */
-        input[type=range]::-webkit-slider-thumb {
+        /* бегунок в форме эллипса (прямоугольник со скруглением) — тоже синий */
+        .blue-slider::-webkit-slider-thumb {
             -webkit-appearance: none;
-            width: 44px;
-            height: 28px;
-            background: white;
-            border-radius: 40% / 50%;  /* эллиптическая форма, похожа на прямоугольник со скруглением */
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1), 0 0 0 2px rgba(60,60,80,0.2) inset;
-            cursor: pointer;
-            transition: 0.08s;
-            border: 2px solid rgba(255,255,255,0.8);
-        }
-
-        input[type=range]::-webkit-slider-thumb:hover {
-            background: #f0f0ff;
-            transform: scale(1.04);
-        }
-
-        /* Firefox */
-        input[type=range]::-moz-range-thumb {
-            width: 44px;
-            height: 28px;
-            background: white;
+            width: 48px;
+            height: 30px;
+            background-color: #1e3a8a; /* тёмно-синий для контраста */
             border-radius: 40% / 50%;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1), 0 0 0 2px rgba(60,60,80,0.2) inset;
             cursor: pointer;
-            border: 2px solid rgba(255,255,255,0.8);
+            border: 2px solid #ffffff80;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
         }
 
-        input[type=range]::-moz-range-track {
-            background: rgba(0, 0, 0, 0.1);
+        .blue-slider::-webkit-slider-thumb:hover {
+            background-color: #2563eb;
+        }
+
+        /* firefox */
+        .blue-slider::-moz-range-thumb {
+            width: 48px;
+            height: 30px;
+            background-color: #1e3a8a;
+            border-radius: 40% / 50%;
+            cursor: pointer;
+            border: 2px solid #ffffff80;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+
+        .blue-slider::-moz-range-track {
+            background-color: #3b82f6;
             border-radius: 30px;
             height: 12px;
-            border: 1px solid rgba(255,255,255,0.5);
+            border: none;
         }
 
-        /* Internet Explorer / Edge (современный Edge использует webkit, но на всякий случай) */
-        input[type=range]::-ms-thumb {
-            width: 44px;
-            height: 28px;
-            background: white;
-            border-radius: 40% / 50%;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1), 0 0 0 2px rgba(60,60,80,0.2) inset;
-            cursor: pointer;
-            border: 2px solid rgba(255,255,255,0.8);
-        }
-
-        input[type=range]::-ms-track {
-            background: transparent;
-            border-color: transparent;
-            color: transparent;
-            height: 12px;
-        }
-
-        input[type=range]::-ms-fill-lower,
-        input[type=range]::-ms-fill-upper {
-            background: rgba(0, 0, 0, 0.1);
-            border-radius: 30px;
-            border: 1px solid rgba(255,255,255,0.5);
-        }
-
-        /* дисплей яркости */
-        .brightness-value {
-            font-size: 1rem;
-            background: rgba(255,255,255,0.3);
-            color: #1a1a26;
-            padding: 0.3rem 1.2rem;
-            border-radius: 60px;
-            backdrop-filter: blur(4px);
-            border: 1px solid rgba(255,255,240,0.6);
-            font-weight: 500;
-        }
-
-        /* микро-инфо */
-        .hint {
-            color: #2d2d3a;
-            background: rgba(255,255,240,0.3);
-            padding: 6px 16px;
-            border-radius: 60px;
-            font-size: 0.85rem;
-            backdrop-filter: blur(4px);
-            border: 1px solid rgba(255,255,255,0.4);
-            margin-top: 8px;
-            text-align: center;
-        }
-
-        /* мобильная адаптация */
+        /* мобильная чуть меньше */
         @media (max-width: 480px) {
-            .card {
-                padding: 2rem 1.5rem;
-                border-radius: 40px;
+            .pure-controls {
+                gap: 2.5rem;
             }
-            .round-button {
-                width: 140px;
-                height: 140px;
-                font-size: 1.2rem;
+            .blue-round {
+                width: 150px;
+                height: 150px;
             }
-            .slider-label {
-                font-size: 1rem;
-            }
-            .brightness-value {
-                font-size: 0.9rem;
+            .blue-slider {
+                max-width: 300px;
             }
         }
     </style>
 </head>
 <body id="body">
-    <div class="card">
-        <!-- круглая кнопка смены цвета (теперь просто "цвет" без смайликов) -->
-        <button class="round-button" id="colorButton">цвет</button>
-
-        <!-- ползунок яркости -->
-        <div class="slider-container">
-            <span class="slider-label">✨ яркость</span>
-            <input type="range" id="brightnessSlider" min="0" max="100" value="100">
-            <div class="brightness-value" id="brightnessDisplay">100%</div>
-        </div>
-
-        <div class="hint">
-            ⋆ двойной клик по кнопке — белый ⋆
-        </div>
+    <!-- только кнопка и ползунок, ничего лишнего -->
+    <div class="pure-controls">
+        <button class="blue-round" id="colorButton" aria-label="сменить цвет"></button>
+        <input type="range" class="blue-slider" id="brightnessSlider" min="0" max="100" value="100" aria-label="яркость">
     </div>
 
     <script>
@@ -231,58 +129,47 @@
             const body = document.getElementById('body');
             const colorButton = document.getElementById('colorButton');
             const brightnessSlider = document.getElementById('brightnessSlider');
-            const brightnessDisplay = document.getElementById('brightnessDisplay');
 
-            // Цветовая палитра — приятные, не слишком яркие, но и не пастельные
+            // Палитра насыщенных цветов (не пастель)
             const colorPalette = [
-                '#FFB6C1', // светло-розовый
-                '#B0E0E6', // пудрово-голубой
-                '#D8BFD8', // светло-фиолетовый
-                '#F0E68C', // хаки
-                '#E6E6FA', // лавандовый
-                '#AFEEEE', // бирюзовый
-                '#FBCEB1', // персиковый
-                '#C0D6E4', // серо-голубой
-                '#D4BFAF', // тепло-бежевый
-                '#C1E1C1', // мятный
-                '#FADADD', // нежно-розовый
-                '#E0BBE4', // глициния
-                '#B5EAD7', // мятно-зеленый
-                '#FEE1B5', // ванильный
-                '#DDB7B7'  // розовато-линялый
+                '#F97316', // оранжевый
+                '#10B981', // изумрудный
+                '#EC4899', // розовый
+                '#8B5CF6', // фиолетовый
+                '#F43F5E', // розово-красный
+                '#14B8A6', // бирюзовый
+                '#F59E0B', // янтарный
+                '#6366F1', // индиго
+                '#EF4444', // красный
+                '#06B6D4', // циан
+                '#D946EF', // маджента
+                '#84CC16', // салатовый
             ];
 
-            // Текущий цвет в формате HSL (чтобы менять яркость)
+            // Текущий цвет в HSL
             let currentHue = 0;
             let currentSaturation = 0;
-            
-            // Флаг, что мы в режиме белого (saturation = 0). По умолчанию белый.
-            let isWhiteMode = true;
+            let isWhiteMode = true;     // начинаем с белого
 
-            // Яркость от ползунка (0..1)
-            let brightnessFactor = 1; // 100%
+            // яркость (0..1)
+            let brightnessFactor = 1;
 
-            // Функция обновления фона: всегда используем цвет + яркость (даже при 100% будет цвет, если не белый)
+            // Обновление фона
             function updateBackground() {
                 if (isWhiteMode) {
-                    // режим белого: яркость работает от белого до чёрного (светлота)
-                    let lightness = brightnessFactor; // от 0 до 1
+                    // белый режим: яркость от белого до чёрного
+                    let lightness = brightnessFactor; // 0..1
                     body.style.backgroundColor = `hsl(0, 0%, ${lightness * 100}%)`;
                 } else {
-                    // цветной режим: яркость меняет светлоту от почти чёрного до полного цвета
-                    // Чтобы при 100% был цвет, а не белый, ставим диапазон светлоты, например, от 0.15 до 0.9
-                    // (при 0.9 цвет всё ещё насыщенный, не выбеленный)
-                    // При желании можно подобрать точно: maxLight 0.95 даст очень яркий цвет, но не белый.
-                    let minLight = 0.15;   // минимальная яркость (почти чёрный)
-                    let maxLight = 0.92;    // максимальная яркость (цвет, но не белый)
+                    // цветной режим: яркость меняет светлоту, но при 100% остаётся цвет (не белый)
+                    let minLight = 0.15;
+                    let maxLight = 0.92;
                     let lightness = minLight + (maxLight - minLight) * brightnessFactor;
-                    
                     body.style.backgroundColor = `hsl(${currentHue}, ${currentSaturation * 100}%, ${lightness * 100}%)`;
                 }
-                brightnessDisplay.textContent = Math.round(brightnessFactor * 100) + '%';
             }
 
-            // Конвертер HEX в HSL (взял из первого варианта, работает отлично)
+            // конвертер HEX -> HSL (та же функция)
             function hexToHsl(hex) {
                 let r = parseInt(hex.slice(1,3), 16) / 255;
                 let g = parseInt(hex.slice(3,5), 16) / 255;
@@ -307,41 +194,35 @@
                 return { h: h * 360, s: s };
             }
 
-            // Выбор случайного цвета из палитры
+            // выбор случайного цвета
             function pickRandomColor() {
                 const hex = colorPalette[Math.floor(Math.random() * colorPalette.length)];
                 const { h, s } = hexToHsl(hex);
                 currentHue = h;
                 currentSaturation = s;
-                isWhiteMode = false;   // выходим из белого режима
+                isWhiteMode = false;
                 updateBackground();
             }
 
-            // Обработчик кнопки
-            colorButton.addEventListener('click', () => {
-                pickRandomColor();
-            });
+            // обработчик кнопки
+            colorButton.addEventListener('click', pickRandomColor);
 
-            // Двойной клик — сброс в белый (с сохранением работы яркости)
+            // двойной клик — сброс на белый
             colorButton.addEventListener('dblclick', () => {
                 isWhiteMode = true;
-                currentSaturation = 0;  // важно для логики
                 updateBackground();
             });
 
-            // Ползунок яркости
+            // ползунок яркости
             brightnessSlider.addEventListener('input', (e) => {
                 brightnessFactor = parseFloat(e.target.value) / 100;
                 updateBackground();
             });
 
-            // Инициализация: белый фон, 100% яркость
+            // инициализация: белый фон
             isWhiteMode = true;
             brightnessFactor = 1;
             updateBackground();
-
-            // маленькая деталь: меняем текст кнопки на "цвет" (он и так стоит)
-            // при желании можно оставить как есть
         })();
     </script>
 </body>

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Звуковые кнопки</title>
+    <title>Bento Sound</title>
     <style>
         * {
             margin: 0;
@@ -14,7 +14,11 @@
 
         body {
             min-height: 100vh;
-            background: linear-gradient(145deg, #f0f2f5 0%, #e6e9ef 100%);
+            background: #f5f7fa;
+            background-image: 
+                linear-gradient(#eef2f6 1px, transparent 1px),
+                linear-gradient(90deg, #eef2f6 1px, transparent 1px);
+            background-size: 40px 40px;
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
             display: flex;
             align-items: center;
@@ -22,180 +26,248 @@
             position: relative;
         }
 
-        /* центральная кнопка */
+        /* Bento Grid эффект через псевдоэлемент */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(circle at 30% 50%, rgba(255,255,255,0.8) 0%, transparent 50%),
+                        radial-gradient(circle at 70% 30%, rgba(200,220,255,0.6) 0%, transparent 60%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* центральная кнопка - синяя */
         .center-btn {
-            width: 140px;
-            height: 140px;
-            border-radius: 42px;
-            background-color: #f0f2f5;
+            width: 160px;
+            height: 160px;
+            border-radius: 32px;
+            background: linear-gradient(145deg, #3b7bff, #2b5fd9);
             border: none;
             box-shadow: 
-                0 10px 20px rgba(0, 0, 0, 0.05),
-                0 -5px 15px rgba(255, 255, 255, 0.7) inset,
-                4px 4px 10px rgba(0, 0, 0, 0.03);
+                0 20px 35px -8px rgba(0, 65, 255, 0.4),
+                0 8px 18px rgba(0, 0, 0, 0.05),
+                0 -2px 8px rgba(255, 255, 255, 0.3) inset,
+                0 8px 12px rgba(0, 0, 0, 0.05) inset;
             cursor: pointer;
             transition: all 0.2s ease;
             display: flex;
             align-items: center;
             justify-content: center;
+            position: relative;
+            z-index: 10;
+            /* Bento-стиль: легкая прозрачность и размытие */
+            backdrop-filter: blur(2px);
         }
 
         .center-btn::after {
             content: '';
             display: block;
-            width: 50px;
-            height: 50px;
-            background-color: rgba(70, 130, 200, 0.15);
-            border-radius: 30px;
+            width: 60px;
+            height: 60px;
+            background-color: rgba(255, 255, 255, 0.3);
+            border-radius: 20px;
             transition: all 0.2s;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.02);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
         }
 
         .center-btn:hover {
-            background-color: #f5f7fa;
+            background: linear-gradient(145deg, #4784ff, #3669e6);
+            transform: translateY(-3px);
             box-shadow: 
-                0 15px 25px rgba(0, 0, 0, 0.08),
-                0 -5px 15px rgba(255, 255, 255, 0.9) inset,
-                4px 4px 12px rgba(0, 0, 0, 0.02);
+                0 28px 40px -10px rgba(0, 65, 255, 0.5),
+                0 10px 20px rgba(0, 0, 0, 0.05),
+                0 -2px 10px rgba(255, 255, 255, 0.4) inset;
         }
 
         .center-btn:active {
-            transform: scale(0.96);
-            background-color: #e2e6ec;
+            transform: translateY(2px) scale(0.96);
+            background: linear-gradient(145deg, #2b5fd9, #1f4ab3);
             box-shadow: 
-                0 5px 10px rgba(0, 0, 0, 0.05),
-                0 -2px 8px rgba(255, 255, 255, 0.6) inset;
+                0 15px 25px -5px rgba(0, 65, 255, 0.5),
+                0 4px 8px rgba(0, 0, 0, 0.1) inset;
         }
 
-        /* маленькая кнопка в правом нижнем углу */
+        /* маленькая кнопка в углу - красная или желтая */
         .corner-btn {
             position: fixed;
             bottom: 30px;
             right: 30px;
-            width: 70px;
-            height: 70px;
-            border-radius: 30px;
+            width: 80px;
+            height: 80px;
+            border-radius: 28px;
             border: none;
-            background-color: #b8d0e6;
+            background: #ff4d4d; /* красный по умолчанию */
             box-shadow: 
-                0 10px 18px rgba(0, 0, 0, 0.06),
-                0 -5px 12px rgba(255, 255, 255, 0.8) inset,
-                2px 2px 8px rgba(0, 0, 0, 0.02);
+                0 20px 30px -8px rgba(255, 70, 70, 0.4),
+                0 8px 15px rgba(0, 0, 0, 0.05),
+                0 -2px 8px rgba(255, 255, 255, 0.5) inset,
+                0 8px 12px rgba(0, 0, 0, 0.05) inset;
             cursor: pointer;
-            transition: background-color 0.25s ease, box-shadow 0.2s, transform 0.1s;
+            transition: all 0.25s ease;
             display: flex;
             align-items: center;
             justify-content: center;
+            z-index: 10;
+            backdrop-filter: blur(2px);
         }
 
         .corner-btn::after {
             content: '';
             display: block;
-            width: 26px;
-            height: 26px;
-            background-color: rgba(255, 255, 255, 0.6);
+            width: 32px;
+            height: 32px;
+            background-color: rgba(255, 255, 255, 0.5);
             border-radius: 14px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+            transition: all 0.2s;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
         }
 
         .corner-btn:hover {
+            transform: translateY(-3px) scale(1.02);
             box-shadow: 
-                0 12px 20px rgba(0, 0, 0, 0.08),
-                0 -5px 12px rgba(255, 255, 255, 0.9) inset;
+                0 25px 35px -8px rgba(255, 70, 70, 0.5),
+                0 10px 20px rgba(0, 0, 0, 0.05),
+                0 -2px 10px rgba(255, 255, 255, 0.6) inset;
         }
 
         .corner-btn:active {
-            transform: scale(0.92);
+            transform: translateY(2px) scale(0.95);
+            box-shadow: 
+                0 15px 25px -5px rgba(255, 70, 70, 0.5),
+                0 4px 8px rgba(0, 0, 0, 0.1) inset;
         }
 
+        /* режимы для угловой кнопки */
         .corner-btn.mode-a {
-            background-color: #b8d0e6;
+            background: #ff4d4d; /* красный */
         }
 
         .corner-btn.mode-b {
-            background-color: #f5c4b8;
+            background: #ffd966; /* желтый */
+        }
+
+        /* дополнительный Bento-эффект - плашки на фоне */
+        .bento-piece {
+            position: fixed;
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(8px);
+            border-radius: 30px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.02);
+            border: 1px solid rgba(255,255,255,0.3);
+            z-index: 1;
+        }
+
+        .bento-1 {
+            top: 10%;
+            left: 5%;
+            width: 150px;
+            height: 120px;
+        }
+
+        .bento-2 {
+            bottom: 15%;
+            left: 15%;
+            width: 200px;
+            height: 140px;
+        }
+
+        .bento-3 {
+            top: 20%;
+            right: 8%;
+            width: 180px;
+            height: 180px;
         }
 
         .center-btn:focus-visible, .corner-btn:focus-visible {
-            outline: 3px solid #a0b8d0;
+            outline: 3px solid white;
             outline-offset: 4px;
         }
 
         .center-btn.pulse {
-            animation: button-pop 0.15s ease-out;
+            animation: bento-pop 0.15s ease-out;
         }
 
-        @keyframes button-pop {
+        @keyframes bento-pop {
             0% { transform: scale(1); }
-            50% { transform: scale(1.07); background-color: #ffffff; }
+            50% { transform: scale(1.08); background: linear-gradient(145deg, #5a91ff, #3f77f0); }
             100% { transform: scale(1); }
         }
     </style>
 </head>
 <body>
+    <!-- Bento Grid декоративные элементы -->
+    <div class="bento-piece bento-1"></div>
+    <div class="bento-piece bento-2"></div>
+    <div class="bento-piece bento-3"></div>
+
     <button class="center-btn" id="soundBtn" aria-label="звуковая кнопка"></button>
     <button class="corner-btn mode-a" id="modeBtn" aria-label="переключить режим"></button>
 
     <script>
         (function() {
-            // ⚠️ ВАЖНО: Укажи правильные пути к своим звуковым файлам!
+            // ⚠️ Укажи пути к своим звуковым файлам!
             const SOUND_FILES = {
-                A: 'sound1.mp3',  // первый звук
-                B: 'sound2.mp3'   // второй звук
+                A: 'sound1.mp3',
+                B: 'sound2.mp3'
             };
             
             let currentMode = 'A';
             let lastClickTime = 0;
             let rapidClickCount = 0;
-            const RAPID_INTERVAL = 350; // миллисекунд
+            const RAPID_INTERVAL = 350; // мс
             
             const centerBtn = document.getElementById('soundBtn');
             const modeBtn = document.getElementById('modeBtn');
             
-            // Функция воспроизведения звука
             function playSound(mode) {
                 try {
-                    // Создаём НОВЫЙ элемент Audio для наложения звуков
                     const audio = new Audio(SOUND_FILES[mode]);
                     
-                    // Расчёт громкости от быстрых кликов
                     const now = Date.now();
                     const timeSinceLast = now - lastClickTime;
                     
                     if (timeSinceLast < RAPID_INTERVAL) {
-                        rapidClickCount = Math.min(rapidClickCount + 1, 5);
+                        rapidClickCount = Math.min(rapidClickCount + 1, 8); // можно до 8 быстрых кликов
                     } else {
                         rapidClickCount = 0;
                     }
                     
-                    // Громкость: от 0.3 до 1.0
-                    const volume = Math.min(1.0, 0.3 + rapidClickCount * 0.15);
+                    // ГРОМКОСТЬ: теперь от 0.3 до 2.0 (но без искажений, динамический диапазон)
+                    // Используем нелинейное увеличение, чтобы было громко, но чисто
+                    let volume;
+                    if (rapidClickCount === 0) {
+                        volume = 0.4; // базовый комфортный уровень
+                    } else {
+                        // Быстро растем до 2.0 (макс) - в 2 раза громче базового!
+                        volume = Math.min(2.0, 0.4 + rapidClickCount * 0.25);
+                    }
+                    
                     audio.volume = volume;
                     
-                    // Воспроизводим
                     audio.play().catch(error => {
-                        console.log('Нужно первое взаимодействие с сайтом');
+                        console.log('Нужно взаимодействие с сайтом');
                     });
                     
                     lastClickTime = now;
                     
-                    // Визуальная анимация
                     centerBtn.classList.add('pulse');
                     setTimeout(() => {
                         centerBtn.classList.remove('pulse');
                     }, 150);
                     
                 } catch (e) {
-                    console.log('Ошибка воспроизведения:', e);
+                    console.log('Ошибка:', e);
                 }
             }
             
-            // Клик по центральной кнопке
             centerBtn.addEventListener('click', () => {
                 playSound(currentMode);
             });
             
-            // Переключение режима
             modeBtn.addEventListener('click', () => {
                 if (currentMode === 'A') {
                     currentMode = 'B';
@@ -207,23 +279,19 @@
                     modeBtn.classList.add('mode-a');
                 }
                 
-                // Эффект нажатия на уголке
-                modeBtn.style.boxShadow = '0 0 0 3px rgba(255,255,255,0.5)';
+                modeBtn.style.transform = 'scale(0.9)';
                 setTimeout(() => {
-                    modeBtn.style.boxShadow = '';
+                    modeBtn.style.transform = '';
                 }, 150);
                 
-                // Предзагружаем звук нового режима
                 new Audio(SOUND_FILES[currentMode]).load();
             });
             
-            // Предзагрузка обоих звуков при загрузке страницы
             window.addEventListener('load', () => {
                 new Audio(SOUND_FILES.A).load();
                 new Audio(SOUND_FILES.B).load();
             });
             
-            // Запрет контекстного меню на кнопках
             centerBtn.oncontextmenu = (e) => e.preventDefault();
             modeBtn.oncontextmenu = (e) => e.preventDefault();
         })();

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sound Switch — Google Style</title>
+    <title>Sound Buttons — Clean</title>
     <style>
         * {
             margin: 0;
@@ -14,109 +14,82 @@
 
         body {
             min-height: 100vh;
-            background: #ffffff;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: #f8faff;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             display: flex;
             align-items: center;
             justify-content: center;
             position: relative;
         }
 
-        /* Главная кнопка — как в Google Material Design */
+        /* Центральная кнопка — чистый синий круг */
         .center-btn {
             width: 180px;
             height: 180px;
             border-radius: 50%;
-            background: #1a73e8; /* Google Blue */
-            border: none;
-            box-shadow: 0 8px 20px rgba(26, 115, 232, 0.3);
+            background: #1a73e8;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 10px 25px rgba(26, 115, 232, 0.3);
             cursor: pointer;
-            transition: all 0.2s cubic-bezier(0.2, 0, 0, 1);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            position: relative;
-        }
-
-        .center-btn::after {
-            content: '';
-            display: block;
-            width: 70px;
-            height: 70px;
-            background-color: rgba(255, 255, 255, 0.25);
-            border-radius: 50%;
-            transition: all 0.2s;
+            transition: all 0.15s ease;
         }
 
         .center-btn:hover {
-            background: #1b66c9;
-            box-shadow: 0 12px 28px rgba(26, 115, 232, 0.4);
+            background: #0d5fcf;
             transform: scale(1.02);
+            box-shadow: 0 15px 30px rgba(26, 115, 232, 0.4);
         }
 
         .center-btn:active {
             transform: scale(0.96);
-            background: #155ab0;
-            box-shadow: 0 4px 12px rgba(26, 115, 232, 0.4);
+            background: #0a4faf;
+            box-shadow: 0 5px 15px rgba(26, 115, 232, 0.4);
         }
 
-        /* Маленькая кнопка в углу — Google-style FAB */
+        /* Маленькая кнопка в углу */
         .corner-btn {
             position: fixed;
-            bottom: 32px;
-            right: 32px;
-            width: 72px;
-            height: 72px;
-            border-radius: 50%; /* Круглая как FAB */
-            border: none;
-            background: #ea4335; /* Google Red */
-            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
-            cursor: pointer;
-            transition: all 0.2s cubic-bezier(0.2, 0, 0, 1);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .corner-btn::after {
-            content: '';
-            display: block;
-            width: 32px;
-            height: 32px;
-            background-color: rgba(255, 255, 255, 0.4);
+            bottom: 30px;
+            right: 30px;
+            width: 70px;
+            height: 70px;
             border-radius: 50%;
-            transition: all 0.2s;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            background: #ea4335; /* красный */
+            box-shadow: 0 8px 18px rgba(234, 67, 53, 0.25);
+            cursor: pointer;
+            transition: all 0.15s ease;
         }
 
         .corner-btn:hover {
             transform: scale(1.08);
-            box-shadow: 0 10px 24px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 12px 24px rgba(234, 67, 53, 0.35);
         }
 
         .corner-btn:active {
             transform: scale(0.92);
-            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 4px 10px rgba(234, 67, 53, 0.3);
         }
 
         /* Режимы угловой кнопки */
         .corner-btn.mode-a {
-            background: #ea4335; /* Красный */
+            background: #ea4335; /* красный */
         }
 
         .corner-btn.mode-b {
-            background: #f9ab00; /* Google Yellow */
+            background: #f9ab00; /* жёлтый */
         }
 
         .center-btn:focus-visible, .corner-btn:focus-visible {
-            outline: 2px solid #1a73e8;
+            outline: 3px solid #1a73e8;
             outline-offset: 4px;
         }
 
         .center-btn.pulse {
-            animation: google-pulse 0.15s ease-out;
+            animation: button-pulse 0.15s ease-out;
         }
 
-        @keyframes google-pulse {
+        @keyframes button-pulse {
             0% { transform: scale(1); }
             50% { transform: scale(1.06); background: #4285f4; }
             100% { transform: scale(1); }
@@ -129,7 +102,7 @@
 
     <script>
         (function() {
-            // ⚠️ Пути к твоим звукам
+            // Пути к звукам
             const SOUND_FILES = {
                 A: 'sound1.mp3',
                 B: 'sound2.mp3'
@@ -138,59 +111,32 @@
             let currentMode = 'A';
             let lastClickTime = 0;
             let rapidClickCount = 0;
-            const RAPID_INTERVAL = 350; // мс
+            const RAPID_INTERVAL = 350;
             
             const centerBtn = document.getElementById('soundBtn');
             const modeBtn = document.getElementById('modeBtn');
             
-            // Разрешаем звуки при первом клике куда угодно
-            let audioContext = null;
-            function initAudio() {
-                if (!audioContext) {
-                    audioContext = new (window.AudioContext || window.webkitAudioContext)();
-                }
-                if (audioContext.state === 'suspended') {
-                    audioContext.resume();
-                }
-            }
-            
-            // Воспроизведение с ПОЛНЫМ наложением (каждый клик = новый звук)
+            // Тот САМЫЙ рабочий звуковой движок с первой версии
             function playSound(mode) {
                 try {
-                    initAudio(); // гарантируем, что аудио контекст жив
-                    
-                    // СОЗДАЁМ НОВЫЙ audio КАЖДЫЙ РАЗ — это даёт наложение
                     const audio = new Audio(SOUND_FILES[mode]);
                     
                     const now = Date.now();
                     const timeSinceLast = now - lastClickTime;
                     
-                    // Счётчик быстрых кликов
                     if (timeSinceLast < RAPID_INTERVAL) {
-                        rapidClickCount = Math.min(rapidClickCount + 1, 8);
+                        rapidClickCount = Math.min(rapidClickCount + 1, 5);
                     } else {
                         rapidClickCount = 0;
                     }
                     
-                    // Громкость: от 0.3 до 2.0 (чем быстрее клики, тем громче)
-                    let volume;
-                    if (rapidClickCount === 0) {
-                        volume = 0.3;
-                    } else {
-                        volume = Math.min(2.0, 0.3 + rapidClickCount * 0.25);
-                    }
-                    
+                    const volume = Math.min(1.0, 0.3 + rapidClickCount * 0.15);
                     audio.volume = volume;
                     
-                    // ВАЖНО: каждый раз новый play() — звуки накладываются
-                    audio.play().catch(e => {
-                        // игнорируем ошибки первого клика
-                        console.log('Нажми на страницу сначала');
-                    });
+                    audio.play().catch(e => console.log('Жми на страницу сначала'));
                     
                     lastClickTime = now;
                     
-                    // Визуальный фидбек
                     centerBtn.classList.add('pulse');
                     setTimeout(() => {
                         centerBtn.classList.remove('pulse');
@@ -201,16 +147,11 @@
                 }
             }
             
-            // Клик по центру
-            centerBtn.addEventListener('click', (e) => {
-                e.stopPropagation();
+            centerBtn.addEventListener('click', () => {
                 playSound(currentMode);
             });
             
-            // Переключение режима
-            modeBtn.addEventListener('click', (e) => {
-                e.stopPropagation();
-                
+            modeBtn.addEventListener('click', () => {
                 if (currentMode === 'A') {
                     currentMode = 'B';
                     modeBtn.classList.remove('mode-a');
@@ -221,28 +162,21 @@
                     modeBtn.classList.add('mode-a');
                 }
                 
-                // Микро-анимация
+                // Визуальный фидбек
                 modeBtn.style.transform = 'scale(0.9)';
                 setTimeout(() => {
                     modeBtn.style.transform = '';
                 }, 120);
                 
-                // Предзагружаем звук нового режима
+                // Предзагрузка
                 new Audio(SOUND_FILES[currentMode]).load();
             });
             
-            // Предзагрузка обоих звуков
             window.addEventListener('load', () => {
                 new Audio(SOUND_FILES.A).load();
                 new Audio(SOUND_FILES.B).load();
             });
             
-            // Инициализация аудио при любом клике на странице
-            document.body.addEventListener('click', () => {
-                initAudio();
-            }, { once: true });
-            
-            // Запрет контекстного меню
             centerBtn.oncontextmenu = (e) => e.preventDefault();
             modeBtn.oncontextmenu = (e) => e.preventDefault();
         })();

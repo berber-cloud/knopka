@@ -3,318 +3,197 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
-    <title>крутилка · яркость · ползунок · цвет</title>
+    <title>порядковые фрагменты · игра</title>
     <style>
-        /* плоский 2D-стиль, ничего лишнего */
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
         }
 
         body {
             min-height: 100vh;
+            background: #f0f2f5;  /* светлый фон как в Telegram */
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
             display: flex;
             justify-content: center;
             align-items: center;
-            background: #ffffff; /* меняется скриптом */
-            transition: background-color 0.1s ease;
-            font-family: system-ui, -apple-system, sans-serif;
-            padding: 24px;
+            padding: 12px;
             margin: 0;
         }
 
-        /* контейнер — всё по центру */
-        .wrapper {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 3rem;
+        /* основной контейнер на всю площадь */
+        .game-board {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr); /* изначально 2 (будет меняться) */
+            gap: 14px;
             width: 100%;
-            max-width: 480px;
+            max-width: 600px;
+            aspect-ratio: 1 / 1;  /* квадратное поле */
+            background: transparent;
         }
 
-        /* ----- КРУТИЛКА (отвечает за яркость) ----- */
-        /* контейнер для вращающегося элемента */
-        .dial-container {
-            position: relative;
-            width: 200px;
-            height: 200px;
+        /* карточка-фрагмент — скруглённые углы, никаких теней, всё плоско и модно */
+        .tile {
+            background-color: #ffffff;
+            border-radius: 24px;  /* мягкое скругление как в Telegram */
             display: flex;
             align-items: center;
             justify-content: center;
-        }
-
-        /* интерактивная крутилка — плоский круг с обводкой */
-        .brightness-dial {
-            width: 180px;
-            height: 180px;
-            border-radius: 50%;
-            background: transparent;
-            border: 6px solid #2d2d3a;        /* тёмно-серая обводка */
+            font-size: min(6vw, 3rem);
+            font-weight: 600;
+            color: #1e1e2a;
             cursor: pointer;
+            transition: background-color 0.15s ease, transform 0.1s ease;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
+            border: 1px solid rgba(0, 0, 0, 0.04);
+            aspect-ratio: 1 / 1;
             -webkit-tap-highlight-color: transparent;
-            transition: border-color 0.1s;
-            position: relative;
-            z-index: 2;
-            /* маленькая метка вверху, чтобы понимать вращение */
-            transform: rotate(0deg); /* будет меняться через js */
+            padding: 0; /* без внутренних отступов */
         }
 
-        /* маленькая точка-маркер на крутилке */
-        .dial-marker {
-            position: absolute;
-            top: -6px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 10px;
-            height: 10px;
-            background: #2d2d3a;
-            border-radius: 50%;
-            z-index: 3;
-            pointer-events: none;
+        /* при тапе лёгкое сжатие — очень деликатно */
+        .tile:active {
+            transform: scale(0.97);
         }
 
-        /* числовой индикатор яркости внутри крутилки */
-        .brightness-value {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            font-size: 2rem;
-            font-weight: 500;
-            color: #1a1a26;
-            background: rgba(255,255,255,0.8);
-            padding: 0.4rem 1rem;
-            border-radius: 60px;
-            backdrop-filter: blur(4px);
-            border: 1px solid rgba(0,0,0,0.1);
-            z-index: 4;
-            pointer-events: none;
-            line-height: 1;
-            box-shadow: none;
+        /* зелёный при правильном порядке */
+        .tile.correct {
+            background-color: #8fcf6b;  /* мягкий зелёный (Telegram-style) */
+            color: white;
+            transition: 0.1s;
         }
 
-        /* ----- ПОЛЗУНОК (отвечает за цвет) ----- */
-        /* цветной трек */
-        .color-slider {
-            -webkit-appearance: none;
-            width: 100%;
-            max-width: 400px;
-            height: 20px;
-            border-radius: 40px;
-            outline: none;
-            border: 2px solid rgba(0, 0, 0, 0.2);
-            background: linear-gradient(90deg, 
-                #ff0000, #ff9900, #ffff00, #33cc33, #0099ff, #6633ff, #ff33cc, #ff0000);
-            box-shadow: none;
-            cursor: pointer;
-        }
-
-        /* бегунок — простой эллипс / приплюснутый круг */
-        .color-slider::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            width: 32px;
-            height: 32px;
-            background: white;
-            border-radius: 50%; /* просто круг для простоты (можно эллипс, но круг современней) */
-            border: 3px solid #1e1e2a;
-            box-shadow: none;
-            cursor: pointer;
+        /* красный при ошибке (временный) */
+        .tile.wrong {
+            background-color: #ff6b6b;  /* приглушённый красный */
+            color: white;
             transition: 0.05s;
-            margin-top: -6px; /* выравнивание */
         }
 
-        .color-slider::-webkit-slider-thumb:active {
-            background: #f0f0ff;
-            transform: scale(1.1);
-        }
-
-        /* firefox */
-        .color-slider::-moz-range-thumb {
-            width: 32px;
-            height: 32px;
-            background: white;
-            border-radius: 50%;
-            border: 3px solid #1e1e2a;
-            cursor: pointer;
-        }
-
-        .color-slider::-moz-range-track {
-            height: 20px;
-            background: linear-gradient(90deg, 
-                #ff0000, #ff9900, #ffff00, #33cc33, #0099ff, #6633ff, #ff33cc, #ff0000);
-            border-radius: 40px;
-            border: 2px solid rgba(0,0,0,0.2);
-        }
-
-        /* для Edge */
-        .color-slider::-ms-track {
-            height: 20px;
-            background: transparent;
-            border-color: transparent;
-            color: transparent;
-        }
-
-        .color-slider::-ms-thumb {
-            width: 32px;
-            height: 32px;
-            background: white;
-            border-radius: 50%;
-            border: 3px solid #1e1e2a;
-            cursor: pointer;
-        }
-
-        /* микро-подпись (необязательно, но для ясности) */
-        .hint {
-            color: #2d2d3a;
-            font-size: 0.8rem;
-            opacity: 0.6;
-            margin-top: 0.5rem;
-            letter-spacing: 0.3px;
-        }
-
+        /* планшеты/телефоны — чуть меньше скругление */
         @media (max-width: 480px) {
-            .dial-container {
-                width: 170px;
-                height: 170px;
+            .tile {
+                border-radius: 20px;
+                font-size: min(8vw, 3rem);
             }
-            .brightness-dial {
-                width: 150px;
-                height: 150px;
-                border-width: 5px;
-            }
-            .brightness-value {
-                font-size: 1.8rem;
-            }
-            .color-slider {
-                max-width: 320px;
+            .game-board {
+                gap: 10px;
             }
         }
     </style>
 </head>
-<body id="body">
-    <div class="wrapper">
-        <!-- крутилка яркости (вращающаяся) -->
-        <div class="dial-container">
-            <div class="brightness-dial" id="brightnessDial" role="slider" aria-label="яркость" tabindex="0"></div>
-            <div class="dial-marker"></div>
-            <div class="brightness-value" id="brightnessPercent">100%</div>
-        </div>
-
-        <!-- ползунок цвета (линейный) -->
-        <input type="range" class="color-slider" id="colorSlider" min="0" max="360" value="0" step="1" aria-label="цвет">
-        <!-- небольшой текстовый намёк, можно убрать, но оставлю для удобства -->
-        <div class="hint">↕️ ползунок — цвет / крутилка — яркость</div>
-    </div>
+<body>
+    <!-- поле будет заполняться динамически через js -->
+    <div class="game-board" id="gameBoard"></div>
 
     <script>
         (function() {
-            const body = document.getElementById('body');
-            const brightnessDial = document.getElementById('brightnessDial');
-            const brightnessPercent = document.getElementById('brightnessPercent');
-            const colorSlider = document.getElementById('colorSlider');
+            const board = document.getElementById('gameBoard');
 
-            // Значения
-            let hue = 0;                // оттенок 0..360 (красный по умолчанию)
-            let brightness = 100;        // яркость 0..100
+            // начальное количество плиток = 2
+            let currentLevel = 1;       // уровень 1: 2 плитки, уровень 2: 4, уровень 3: 8 и т.д.
+            let tilesCount = 2;          // 2 ^ currentLevel (но начнём с 2, т.е. 2^1)
+            let tiles = [];              // массив DOM-элементов
+            let nextExpected = 1;         // следующий номер для нажатия (от 1 до tilesCount)
+            let lock = false;             // блокировка на время анимации ошибки
 
-            // для вращения крутилки
-            let isDragging = false;
-            let startAngle = 0;
-            let currentRotation = 0;      // 0..360 градусов, соответствует яркости 0..100
+            // генерация поля
+            function generateBoard(count) {
+                board.innerHTML = '';      // очищаем
+                const cols = Math.sqrt(count); // так как count всегда степень двойки, и квадрат целый
+                board.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
 
-            // --- обновить фон на основе hue и brightness ---
-            function updateBackground() {
-                // яркость переводим в диапазон 0.1 .. 0.95 (чтобы совсем чёрный не был, и совсем белый только при яркости 100 и saturation 0)
-                // но saturation у нас всегда 100% (чистый цвет), яркость линейно от 0 до 100%
-                // чтобы при 100% был яркий цвет, а при 0% — чёрный, используем простую формулу:
-                let lightness = brightness / 100; // 0..1
-                // но цвет при lightness=1 даст белый (для hsl), поэтому если хотим при 100% именно цвет, то надо ограничить
-                // чтобы при 100% яркости был насыщенный цвет (не белый), делаем maxLight = 0.9
-                let maxLight = 0.9;
-                let minLight = 0.05;
-                let mappedLight = minLight + (maxLight - minLight) * (brightness / 100);
-                // для чистоты эксперимента при яркости 100% цвет будет 90% светлоты — достаточно ярко, но не бело
-                body.style.backgroundColor = `hsl(${hue}, 100%, ${mappedLight * 100}%)`;
-                brightnessPercent.textContent = Math.round(brightness) + '%';
+                for (let i = 1; i <= count; i++) {
+                    const tile = document.createElement('div');
+                    tile.className = 'tile';
+                    tile.dataset.index = i;
+                    tile.textContent = i;   // порядковый номер
+                    board.appendChild(tile);
+                }
+
+                tiles = Array.from(document.querySelectorAll('.tile'));
+                nextExpected = 1;  // всегда начинаем с 1
             }
 
-            // --- обработка вращения крутилки (через мышь/тач) ---
-            function getAngleFromEvent(e, centerX, centerY) {
-                const clientX = e.clientX ?? e.touches[0].clientX;
-                const clientY = e.clientY ?? e.touches[0].clientY;
-                const dx = clientX - centerX;
-                const dy = clientY - centerY;
-                return Math.atan2(dy, dx) * 180 / Math.PI; // -180 .. 180
+            // сброс всех подсветок (убираем correct/wrong)
+            function resetHighlights() {
+                tiles.forEach(t => {
+                    t.classList.remove('correct', 'wrong');
+                });
             }
 
-            function startDrag(e) {
-                e.preventDefault();
-                isDragging = true;
+            // обработчик клика
+            function handleTileClick(e) {
+                const tile = e.currentTarget;
+                // если заблокировано (идет красная вспышка) или уже зелёная (уже нажатая) — игнор
+                if (lock || tile.classList.contains('correct')) return;
 
-                const rect = brightnessDial.getBoundingClientRect();
-                const centerX = rect.left + rect.width / 2;
-                const centerY = rect.top + rect.height / 2;
+                const number = parseInt(tile.dataset.index, 10);
 
-                const angle = getAngleFromEvent(e, centerX, centerY);
-                startAngle = angle - currentRotation; // смещение
+                // правильный порядок?
+                if (number === nextExpected) {
+                    // красим в зелёный
+                    tile.classList.add('correct');
+                    nextExpected++;
+
+                    // если все плитки нажаты по порядку — переходим на следующий уровень
+                    if (nextExpected > tilesCount) {
+                        // переходим на новый уровень: удваиваем количество
+                        tilesCount *= 2;
+                        if (tilesCount > 64) tilesCount = 64; // ограничим, чтобы не слишком много
+                        generateBoard(tilesCount);
+                    }
+                } else {
+                    // ошибка: красная вспышка на этой плитке
+                    lock = true;
+                    tile.classList.add('wrong');
+
+                    // через 200 мс убираем красный и разблокируем
+                    setTimeout(() => {
+                        tile.classList.remove('wrong');
+                        lock = false;
+                    }, 200);
+
+                    // также можно сбросить прогресс? по задаче: "если нет, красным на секунду" — ничего не сбрасываем, просто мигает.
+                    // но можно добавить сброс всех зелёных? в условии не сказано, оставим как есть — зелёные остаются, игра продолжается.
+                    // однако логичнее, если ошибка сбрасывает прогресс? но по описанию: "при нажатии очередно на все фрагменты начинался следующий уровень. Если нажимает по порядку, закрашивай фрагменты зеленым, если нет, красным на секунду."
+                    // ничего не сказано про сброс, так что пусть зелёные остаются, и можно дальше собирать. 
+                    // Но если нажать не по порядку, красная вспышка — и всё.
+                }
             }
 
-            function onDrag(e) {
-                if (!isDragging) return;
-                e.preventDefault();
-
-                const rect = brightnessDial.getBoundingClientRect();
-                const centerX = rect.left + rect.width / 2;
-                const centerY = rect.top + rect.height / 2;
-
-                let currentAngle = getAngleFromEvent(e, centerX, centerY);
-                let newRotation = (currentAngle - startAngle + 360) % 360;
-
-                // ограничим? вообще 0..360 свободно, но привяжем к яркости
-                currentRotation = newRotation;
-                brightnessDial.style.transform = `rotate(${currentRotation}deg)`;
-
-                // яркость от 0 до 100 в зависимости от поворота
-                // сделаем так: 0° = 0% яркости, 360° = 100% яркости
-                let rawBrightness = (currentRotation / 360) * 100;
-                brightness = Math.min(100, Math.max(0, rawBrightness));
-                updateBackground();
+            // инициализация: 2 плитки
+            function initGame() {
+                tilesCount = 2;
+                generateBoard(tilesCount);
+                // навешиваем обработчики
+                tiles.forEach(t => t.addEventListener('click', handleTileClick));
             }
 
-            function stopDrag() {
-                isDragging = false;
+            // так как при generateBoard создаются новые элементы, нужно обновлять обработчики
+            // используем MutationObserver или просто переназначаем после генерации
+            function attachListeners() {
+                tiles.forEach(t => t.addEventListener('click', handleTileClick));
             }
 
-            // мышь
-            brightnessDial.addEventListener('mousedown', startDrag);
-            window.addEventListener('mousemove', onDrag);
-            window.addEventListener('mouseup', stopDrag);
+            // переопределим generateBoard с обновлением обработчиков
+            const originalGenerate = generateBoard;
+            generateBoard = function(count) {
+                originalGenerate(count);
+                attachListeners();
+                // сбрасываем блокировку и nextExpected
+                nextExpected = 1;
+                lock = false;
+            };
 
-            // тач
-            brightnessDial.addEventListener('touchstart', startDrag, { passive: false });
-            window.addEventListener('touchmove', onDrag, { passive: false });
-            window.addEventListener('touchend', stopDrag);
+            // старт
+            initGame();
 
-            // предотвращаем выделение при двойном тапе
-            brightnessDial.addEventListener('dragstart', (e) => e.preventDefault());
-
-            // --- ползунок цвета ---
-            colorSlider.addEventListener('input', (e) => {
-                hue = parseInt(e.target.value, 10);
-                updateBackground();
-            });
-
-            // инициализация: яркость 100% (поворот 360deg = 100%)
-            brightness = 100;
-            currentRotation = 360; // 360deg = 100%
-            brightnessDial.style.transform = `rotate(${currentRotation}deg)`;
-            hue = 0; // красный
-            colorSlider.value = 0;
-            updateBackground();
-
-            // можно добавить клавиатуру для крутилки, но для простоты опустим
+            // опционально: добавим эффект двойного клика для сброса (не просили, но можно скрыто)
+            // но лучше без лишнего
         })();
     </script>
 </body>

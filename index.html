@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sound Buttons — Clean</title>
+    <title>Sound Buttons — 5 режимов</title>
     <style>
         * {
             margin: 0;
@@ -55,30 +55,28 @@
             height: 70px;
             border-radius: 50%;
             border: 2px solid rgba(255, 255, 255, 0.3);
-            background: #ea4335; /* красный */
-            box-shadow: 0 8px 18px rgba(234, 67, 53, 0.25);
+            background: #ea4335; /* красный по умолчанию */
+            box-shadow: 0 8px 18px rgba(0, 0, 0, 0.15);
             cursor: pointer;
             transition: all 0.15s ease;
         }
 
         .corner-btn:hover {
             transform: scale(1.08);
-            box-shadow: 0 12px 24px rgba(234, 67, 53, 0.35);
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.2);
         }
 
         .corner-btn:active {
             transform: scale(0.92);
-            box-shadow: 0 4px 10px rgba(234, 67, 53, 0.3);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
         }
 
-        /* Режимы угловой кнопки */
-        .corner-btn.mode-a {
-            background: #ea4335; /* красный */
-        }
-
-        .corner-btn.mode-b {
-            background: #f9ab00; /* жёлтый */
-        }
+        /* 5 режимов — все цвета радуги */
+        .corner-btn.mode-1 { background: #ea4335; } /* красный */
+        .corner-btn.mode-2 { background: #f9ab00; } /* жёлтый */
+        .corner-btn.mode-3 { background: #34a853; } /* зелёный (Google Green) */
+        .corner-btn.mode-4 { background: #4285f4; } /* синий */
+        .corner-btn.mode-5 { background: #a142f4; } /* фиолетовый */
 
         .center-btn:focus-visible, .corner-btn:focus-visible {
             outline: 3px solid #1a73e8;
@@ -98,17 +96,20 @@
 </head>
 <body>
     <button class="center-btn" id="soundBtn" aria-label="звуковая кнопка"></button>
-    <button class="corner-btn mode-a" id="modeBtn" aria-label="переключить режим"></button>
+    <button class="corner-btn mode-1" id="modeBtn" aria-label="переключить режим"></button>
 
     <script>
         (function() {
-            // Пути к звукам
+            // 📁 ПУТИ К 5 ЗВУКАМ — добавь свои файлы в папку sounds
             const SOUND_FILES = {
-                A: 'sound1.mp3',
-                B: 'sound2.mp3'
+                1: 'sound1.mp3', // красный режим
+                2: 'sound2.mp3', // жёлтый режим
+                3: 'sound3.mp3', // зелёный режим
+                4: 'sound4.mp3', // синий режим
+                5: 'sound5.mp3'  // фиолетовый режим
             };
             
-            let currentMode = 'A';
+            let currentMode = 1; // начинаем с красного (1)
             let lastClickTime = 0;
             let rapidClickCount = 0;
             const RAPID_INTERVAL = 350;
@@ -116,7 +117,7 @@
             const centerBtn = document.getElementById('soundBtn');
             const modeBtn = document.getElementById('modeBtn');
             
-            // Тот САМЫЙ рабочий звуковой движок с первой версии
+            // Тот самый рабочий звуковой движок
             function playSound(mode) {
                 try {
                     const audio = new Audio(SOUND_FILES[mode]);
@@ -133,7 +134,7 @@
                     const volume = Math.min(1.0, 0.3 + rapidClickCount * 0.15);
                     audio.volume = volume;
                     
-                    audio.play().catch(e => console.log('Жми на страницу сначала'));
+                    audio.play().catch(e => console.log('Нажми на страницу сначала'));
                     
                     lastClickTime = now;
                     
@@ -151,16 +152,15 @@
                 playSound(currentMode);
             });
             
+            // Переключение режимов по кругу (1 → 2 → 3 → 4 → 5 → 1)
             modeBtn.addEventListener('click', () => {
-                if (currentMode === 'A') {
-                    currentMode = 'B';
-                    modeBtn.classList.remove('mode-a');
-                    modeBtn.classList.add('mode-b');
-                } else {
-                    currentMode = 'A';
-                    modeBtn.classList.remove('mode-b');
-                    modeBtn.classList.add('mode-a');
-                }
+                // Следующий режим (если 5, то возвращаемся к 1)
+                currentMode = currentMode === 5 ? 1 : currentMode + 1;
+                
+                // Удаляем все возможные классы режимов
+                modeBtn.classList.remove('mode-1', 'mode-2', 'mode-3', 'mode-4', 'mode-5');
+                // Добавляем новый класс
+                modeBtn.classList.add(`mode-${currentMode}`);
                 
                 // Визуальный фидбек
                 modeBtn.style.transform = 'scale(0.9)';
@@ -168,13 +168,17 @@
                     modeBtn.style.transform = '';
                 }, 120);
                 
-                // Предзагрузка
+                // Предзагружаем звук нового режима
                 new Audio(SOUND_FILES[currentMode]).load();
             });
             
             window.addEventListener('load', () => {
-                new Audio(SOUND_FILES.A).load();
-                new Audio(SOUND_FILES.B).load();
+                // Предзагружаем все 5 звуков
+                new Audio(SOUND_FILES[1]).load();
+                new Audio(SOUND_FILES[2]).load();
+                new Audio(SOUND_FILES[3]).load();
+                new Audio(SOUND_FILES[4]).load();
+                new Audio(SOUND_FILES[5]).load();
             });
             
             centerBtn.oncontextmenu = (e) => e.preventDefault();
